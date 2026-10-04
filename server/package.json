@@ -1,0 +1,41 @@
+{
+  "name": "inventory-order-server",
+  "version": "1.0.0",
+  "description": "Inventory & Order Management System - Server (Phase 1)",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:init": "node src/db/init.js",
+    "db:migrate": "node src/db/migrate.js",
+    "db:seed": "node src/db/seed.js",
+    "db:verify": "node src/db/verify.js",
+    "db:setup": "node src/db/init.js && node src/db/migrate.js && node src/db/seed.js && node src/db/verify.js",
+    "api:verify": "node src/db/verify_api.js",
+    "inventory:verify": "node src/db/verify_inventory_api.js",
+    "orders:verify": "node src/db/verify_order_api.js",
+    "auth:verify": "node src/db/verify_auth_api.js",
+    "currency:verify": "node src/db/verify_currency_api.js"
+  },
+  "keywords": [
+    "inventory",
+    "order-management",
+    "express",
+    "postgresql",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

@@ -1,0 +1,325 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==================================================
+   GLOBAL SEMANTIC DESIGN TOKENS
+   Four Themes: dark, light, desktop-dark, desktop-light
+   ================================================== */
+
+/* 1. DARK (Default Standard Dark App) */
+:root,
+html[data-theme="dark"] {
+  --background: #0f131c;
+  --sidebar: #0a0e17;
+  --header: #181b25;
+  --surface: #181b25;
+  --surface-secondary: #1c1f29;
+  --surface-elevated: #262a34;
+  --input: #0a0e17;
+
+  --text-primary: #dfe2ef;
+  --text-secondary: #bcc8d1;
+  --text-muted: #86929a;
+
+  --border: #262a34;
+  --border-light: #31353f;
+
+  --primary: #00c2ff;
+  --primary-hover: #00a2e6;
+  --primary-text: #00344e;
+  --secondary: #89ceff;
+  --success: #5ae9ac;
+  --warning: #fbbf24;
+  --danger: #ffb4ab;
+  --hover: rgba(255, 255, 255, 0.05);
+}
+
+/* 2. LIGHT (Standard Light App) */
+html[data-theme="light"] {
+  --background: #f5f7fa;
+  --sidebar: #ffffff;
+  --header: #ffffff;
+  --surface: #ffffff;
+  --surface-secondary: #f1f5f9;
+  --surface-elevated: #e2e8f0;
+  --input: #ffffff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --border: #e2e8f0;
+  --border-light: #cbd5e1;
+
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-text: #ffffff;
+  --secondary: #0369a1;
+  --success: #10b981;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --hover: rgba(0, 0, 0, 0.04);
+}
+
+/* 3. DESKTOP DARK (Enterprise Workspace Dark) */
+html[data-theme="desktop-dark"] {
+  --background: #070a12;
+  --sidebar: #090e1a;
+  --header: #0e1526;
+  --surface: #0e1526;
+  --surface-secondary: #141d33;
+  --surface-elevated: #1e293b;
+  --input: #090e1a;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --border: #1e293b;
+  --border-light: #334155;
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-text: #ffffff;
+  --secondary: #818cf8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #f87171;
+  --hover: rgba(99, 102, 241, 0.1);
+}
+
+/* 4. DESKTOP LIGHT (Enterprise Workspace Light) */
+html[data-theme="desktop-light"] {
+  --background: #f1f5f9;
+  --sidebar: #ffffff;
+  --header: #ffffff;
+  --surface: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-elevated: #e2e8f0;
+  --input: #ffffff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #1e293b;
+  --text-muted: #64748b;
+
+  --border: #cbd5e1;
+  --border-light: #94a3b8;
+
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-text: #ffffff;
+  --secondary: #6366f1;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --hover: rgba(79, 70, 229, 0.05);
+}
+
+/* Base Body Styles */
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
+  }
+
+  *, *::before, *::after {
+    border-color: var(--border);
+  }
+}
+
+/* ==================================================
+   LIGHT & DESKTOP LIGHT OVERRIDES
+   ================================================== */
+
+html.light body,
+html[data-theme="light"] body,
+html[data-theme="desktop-light"] body {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Sidebar Overrides */
+html.light aside,
+html[data-theme="light"] aside,
+html[data-theme="desktop-light"] aside {
+  background-color: var(--sidebar) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="desktop-dark"] aside {
+  background-color: var(--sidebar) !important;
+  border-color: var(--border) !important;
+}
+
+/* Header Overrides */
+html.light header,
+html[data-theme="light"] header,
+html[data-theme="desktop-light"] header {
+  background-color: var(--header) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="desktop-dark"] header {
+  background-color: var(--header) !important;
+  border-color: var(--border) !important;
+}
+
+/* Card Surface Overrides */
+html.light .bg-\[\#181b25\],
+html.light .bg-\[\#081322\],
+html.light .bg-slate-900,
+html[data-theme="light"] .bg-\[\#181b25\],
+html[data-theme="light"] .bg-\[\#081322\],
+html[data-theme="light"] .bg-slate-900,
+html[data-theme="desktop-light"] .bg-\[\#181b25\],
+html[data-theme="desktop-light"] .bg-\[\#081322\],
+html[data-theme="desktop-light"] .bg-slate-900 {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="desktop-dark"] .bg-\[\#181b25\],
+html[data-theme="desktop-dark"] .bg-\[\#081322\],
+html[data-theme="desktop-dark"] .bg-slate-900 {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+html.light .bg-\[\#1c1f29\],
+html.light .bg-\[\#0a1628\],
+html.light .bg-slate-800,
+html[data-theme="light"] .bg-\[\#1c1f29\],
+html[data-theme="light"] .bg-\[\#0a1628\],
+html[data-theme="light"] .bg-slate-800,
+html[data-theme="desktop-light"] .bg-\[\#1c1f29\],
+html[data-theme="desktop-light"] .bg-\[\#0a1628\],
+html[data-theme="desktop-light"] .bg-slate-800 {
+  background-color: var(--surface-secondary) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="desktop-dark"] .bg-\[\#1c1f29\],
+html[data-theme="desktop-dark"] .bg-\[\#0a1628\],
+html[data-theme="desktop-dark"] .bg-slate-800 {
+  background-color: var(--surface-secondary) !important;
+  border-color: var(--border) !important;
+}
+
+html.light .bg-\[\#0a0e17\],
+html.light .bg-\[\#091526\],
+html.light .bg-\[\#0a1626\],
+html.light .bg-slate-950,
+html[data-theme="light"] .bg-\[\#0a0e17\],
+html[data-theme="light"] .bg-\[\#0a1626\],
+html[data-theme="light"] .bg-slate-950,
+html[data-theme="desktop-light"] .bg-\[\#0a0e17\],
+html[data-theme="desktop-light"] .bg-\[\#0a1626\],
+html[data-theme="desktop-light"] .bg-slate-950 {
+  background-color: var(--input) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="desktop-dark"] .bg-\[\#0a0e17\],
+html[data-theme="desktop-dark"] .bg-\[\#0a1626\],
+html[data-theme="desktop-dark"] .bg-slate-950 {
+  background-color: var(--input) !important;
+  border-color: var(--border) !important;
+}
+
+/* Typography Overrides */
+html.light .text-\[\#dfe2ef\],
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-white,
+html[data-theme="light"] .text-\[\#dfe2ef\],
+html[data-theme="light"] .text-slate-100,
+html[data-theme="light"] .text-white,
+html[data-theme="desktop-light"] .text-\[\#dfe2ef\],
+html[data-theme="desktop-light"] .text-slate-100,
+html[data-theme="desktop-light"] .text-white {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="desktop-dark"] .text-\[\#dfe2ef\],
+html[data-theme="desktop-dark"] .text-slate-100,
+html[data-theme="desktop-dark"] .text-white {
+  color: var(--text-primary) !important;
+}
+
+html.light .text-\[\#bcc8d1\],
+html.light .text-slate-300,
+html.light .text-slate-400,
+html[data-theme="light"] .text-\[\#bcc8d1\],
+html[data-theme="light"] .text-slate-300,
+html[data-theme="light"] .text-slate-400,
+html[data-theme="desktop-light"] .text-\[\#bcc8d1\],
+html[data-theme="desktop-light"] .text-slate-300,
+html[data-theme="desktop-light"] .text-slate-400 {
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme="desktop-dark"] .text-\[\#bcc8d1\],
+html[data-theme="desktop-dark"] .text-slate-300,
+html[data-theme="desktop-dark"] .text-slate-400 {
+  color: var(--text-secondary) !important;
+}
+
+html.light .text-\[\#86929a\],
+html.light .text-slate-500,
+html[data-theme="light"] .text-\[\#86929a\],
+html[data-theme="light"] .text-slate-500,
+html[data-theme="desktop-light"] .text-\[\#86929a\],
+html[data-theme="desktop-light"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="desktop-dark"] .text-\[\#86929a\],
+html[data-theme="desktop-dark"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+/* Primary Color Theme Overrides for Desktop Dark & Desktop Light */
+html[data-theme="desktop-dark"] .text-\[\#00c2ff\],
+html[data-theme="desktop-dark"] .text-cyan-400,
+html[data-theme="desktop-light"] .text-\[\#00c2ff\],
+html[data-theme="desktop-light"] .text-cyan-400 {
+  color: var(--primary) !important;
+}
+
+html[data-theme="desktop-dark"] .bg-\[\#00c2ff\],
+html[data-theme="desktop-dark"] .bg-cyan-500,
+html[data-theme="desktop-light"] .bg-\[\#00c2ff\],
+html[data-theme="desktop-light"] .bg-cyan-500 {
+  background-color: var(--primary) !important;
+  color: var(--primary-text) !important;
+}
+
+/* Table Headings in Light Modes */
+html.light th,
+html[data-theme="light"] th,
+html[data-theme="desktop-light"] th {
+  background-color: var(--surface-secondary) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

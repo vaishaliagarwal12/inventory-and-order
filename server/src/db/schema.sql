@@ -4,6 +4,7 @@
 -- =============================================================================
 
 -- Drop existing tables if re-initializing schema (drop in reverse dependency order)
+DROP TABLE IF EXISTS inventory_movements CASCADE;
 DROP TABLE IF EXISTS order_items CASCADE;
 DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS inventory CASCADE;
@@ -191,3 +192,38 @@ CREATE INDEX idx_orders_status ON orders(status);
 -- Order Items
 CREATE INDEX idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+
+
+-- -----------------------------------------------------------------------------
+-- 7. INVENTORY MOVEMENTS TABLE (Stock Audit Ledger)
+-- Tracks all stock adjustments, reservations, restorations, and restocks.
+--
+-- Foreign Key Policy:
+-- - `product_id` uses ON DELETE SET NULL to preserve audit history if an un-ordered product is deleted.
+-- - `order_id` uses ON DELETE SET NULL to preserve movement logs if an order is archived/deleted.
+-- -----------------------------------------------------------------------------
+CREATE TABLE inventory_movements (
+    id SERIAL PRIMARY KEY,
+    product_id INT NULL,
+    order_id INT NULL,
+    change_quantity INTEGER NOT NULL,
+    resulting_quantity INTEGER NOT NULL,
+    movement_type VARCHAR(30) NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Foreign Keys & Constraints
+    CONSTRAINT fk_inventory_movements_product FOREIGN KEY (product_id)
+        REFERENCES products(id) ON DELETE SET NULL,
+    CONSTRAINT fk_inventory_movements_order FOREIGN KEY (order_id)
+        REFERENCES orders(id) ON DELETE SET NULL,
+    CONSTRAINT chk_movement_type CHECK (
+        movement_type IN ('INITIAL_STOCK', 'ORDER_RESERVATION', 'ORDER_CANCEL_RESTORE', 'ADMIN_ADJUSTMENT', 'RESTOCK')
+    )
+);
+
+-- Inventory Movements Indexes
+CREATE INDEX idx_inventory_movements_product_id ON inventory_movements(product_id);
+CREATE INDEX idx_inventory_movements_order_id ON inventory_movements(order_id);
+CREATE INDEX idx_inventory_movements_movement_type ON inventory_movements(movement_type);
+

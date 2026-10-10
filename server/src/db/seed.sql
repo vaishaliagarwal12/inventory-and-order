@@ -4,6 +4,7 @@
 -- =============================================================================
 
 -- Clear existing data (in reverse dependency order)
+TRUNCATE TABLE inventory_movements RESTART IDENTITY CASCADE;
 TRUNCATE TABLE order_items RESTART IDENTITY CASCADE;
 TRUNCATE TABLE orders RESTART IDENTITY CASCADE;
 TRUNCATE TABLE inventory RESTART IDENTITY CASCADE;
@@ -62,3 +63,18 @@ INSERT INTO inventory (product_id, quantity) VALUES
 (7, 40),   -- Clean Architecture
 (8, 15),   -- Espresso Machine
 (9, 80);   -- Cast Iron Skillet
+
+-- -----------------------------------------------------------------------------
+-- 5. SEED INITIAL INVENTORY MOVEMENTS (AUDIT LEDGER)
+-- -----------------------------------------------------------------------------
+INSERT INTO inventory_movements (product_id, order_id, change_quantity, resulting_quantity, movement_type, notes) VALUES
+(1, NULL, 50, 50, 'INITIAL_STOCK', 'Initial warehouse stock allocation'),
+(2, NULL, 35, 35, 'INITIAL_STOCK', 'Initial warehouse stock allocation'),
+(3, NULL, 20, 20, 'INITIAL_STOCK', 'Initial warehouse stock allocation'),
+(4, NULL, 100, 100, 'INITIAL_STOCK', 'Initial warehouse stock allocation'),
+(5, NULL, 75, 75, 'INITIAL_STOCK', 'Initial warehouse stock allocation'),
+(6, NULL, 60, 60, 'INITIAL_STOCK', 'Initial warehouse stock allocation'),
+(7, NULL, 40, 40, 'INITIAL_STOCK', 'Initial warehouse stock allocation'),
+(8, NULL, 15, 15, 'INITIAL_STOCK', 'Initial warehouse stock allocation'),
+(9, NULL, 80, 80, 'INITIAL_STOCK', 'Initial warehouse stock allocation');
+

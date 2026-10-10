@@ -47,3 +47,55 @@ export const findAll = async () => {
   return result.rows;
 };
 
+export const findCustomersAndCount = async ({ page = 1, limit = 10, search }) => {
+  const offset = (page - 1) * limit;
+  const whereClauses = ["u.role = 'CUSTOMER'"];
+  const queryParams = [];
+
+  if (search && search.trim() !== '') {
+    queryParams.push(`%${search.trim()}%`);
+    whereClauses.push(`(u.name ILIKE $${queryParams.length} OR u.email ILIKE $${queryParams.length})`);
+  }
+
+  const whereSql = `WHERE ${whereClauses.join(' AND ')}`;
+
+  const countQuery = `
+    SELECT COUNT(*)::int AS total
+    FROM users u
+    ${whereSql}
+  `;
+  const countResult = await pool.query(countQuery, queryParams);
+  const total = countResult.rows[0]?.total || 0;
+
+  queryParams.push(limit);
+  const limitParamIndex = queryParams.length;
+  queryParams.push(offset);
+  const offsetParamIndex = queryParams.length;
+
+  const dataQuery = `
+    SELECT
+      u.id,
+      u.name,
+      u.email,
+      u.role,
+      u.created_at,
+      u.updated_at,
+      COUNT(o.id)::int AS total_orders,
+      COALESCE(SUM(CASE WHEN o.status != 'CANCELLED' THEN o.total_amount ELSE 0 END), 0)::numeric(10,2) AS total_spent
+    FROM users u
+    LEFT JOIN orders o ON u.id = o.user_id
+    ${whereSql}
+    GROUP BY u.id
+    ORDER BY u.id DESC
+    LIMIT $${limitParamIndex} OFFSET $${offsetParamIndex}
+  `;
+
+  const dataResult = await pool.query(dataQuery, queryParams);
+
+  return {
+    rows: dataResult.rows,
+    total,
+  };
+};
+
+

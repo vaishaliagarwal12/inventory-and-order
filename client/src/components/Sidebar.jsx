@@ -9,12 +9,18 @@ import {
   Users,
   User,
   ShieldCheck,
-  UserCheck
+  UserCheck,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
-export const Sidebar = ({ activeTab, setActiveTab }) => {
+export const Sidebar = ({
+  activeTab,
+  setActiveTab,
+  isStorefrontPreview,
+  onToggleStorefrontPreview
+}) => {
   const { user, isAdmin } = useAuth();
   const { cartItemCount } = useCart();
 
@@ -34,10 +40,12 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: 'inventory', label: 'Stock & Inventory', icon: Boxes },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
     { id: 'customers', label: 'Customers', icon: Users },
+    { id: 'reports', label: 'Reports', icon: BarChart3 },
     { id: 'profile', label: 'Profile', icon: User },
   ];
 
-  const navItems = isAdmin ? adminNavItems : customerNavItems;
+  const isShowingAdminNav = isAdmin && !isStorefrontPreview;
+  const navItems = isShowingAdminNav ? adminNavItems : customerNavItems;
 
   return (
     <aside className="w-56 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-full transition-colors z-10">
@@ -55,7 +63,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
               <div className="flex items-center space-x-1 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-teal"></span>
                 <span className="text-[10px] font-semibold text-teal capitalize">
-                  {user.role}
+                  {user.role} {isStorefrontPreview ? '(Preview)' : ''}
                 </span>
               </div>
             </div>
@@ -68,9 +76,11 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
 
         {/* Navigation Menu */}
         <div className="px-3 py-2 space-y-1">
-          <p className="px-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            {isAdmin ? 'Store Management' : 'Navigation'}
-          </p>
+          <div className="flex items-center justify-between px-2 pb-1.5">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              {isShowingAdminNav ? 'Store Management' : isStorefrontPreview ? 'Storefront (Preview)' : 'Navigation'}
+            </p>
+          </div>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -101,9 +111,33 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
         </div>
       </div>
 
-      {/* Footer Info */}
-      <div className="p-3 border-t border-slate-100 text-center">
-        <p className="text-[11px] text-teal font-semibold">ShopFlow Storefront v2.0</p>
+      {/* Admin Mode Switcher Footer */}
+      <div className="p-3 border-t border-slate-100 space-y-2">
+        {isAdmin && (
+          <button
+            onClick={() => onToggleStorefrontPreview && onToggleStorefrontPreview(!isStorefrontPreview)}
+            className={`w-full py-1.5 px-2.5 text-[11px] font-bold rounded-lg transition-all border flex items-center justify-center space-x-1.5 cursor-pointer ${
+              isStorefrontPreview
+                ? 'bg-navy text-white border-navy hover:bg-navy-dark shadow-xs'
+                : 'bg-slate-50 text-teal border-teal/30 hover:bg-slate-100'
+            }`}
+          >
+            {isStorefrontPreview ? (
+              <>
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Return to Admin Console</span>
+              </>
+            ) : (
+              <>
+                <Home className="w-3.5 h-3.5" />
+                <span>View Customer Storefront</span>
+              </>
+            )}
+          </button>
+        )}
+        <p className="text-[10px] text-slate-400 font-semibold text-center">
+          {isShowingAdminNav ? 'ShopFlow Admin Ops v2.0' : 'ShopFlow Storefront v2.0'}
+        </p>
       </div>
     </aside>
   );

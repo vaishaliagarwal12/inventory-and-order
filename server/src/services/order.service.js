@@ -1,6 +1,7 @@
 import { pool } from '../config/db.js';
 import * as orderRepo from '../repositories/order.repository.js';
 import * as userRepo from '../repositories/user.repository.js';
+import * as inventoryRepo from '../repositories/inventory.repository.js';
 import { AppError } from '../utils/errors.js';
 
 const VALID_STATUSES = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
@@ -128,6 +129,16 @@ export const createOrder = async (body, reqUser) => {
       if (!updateResult) {
         throw new AppError(`Insufficient stock for product ID ${productId}`, 400);
       }
+
+      // Record audit ledger entry
+      await inventoryRepo.createMovementInClient(client, {
+        product_id: productId,
+        order_id: newOrder.id,
+        change_quantity: -quantity,
+        resulting_quantity: updateResult.quantity,
+        movement_type: 'ORDER_RESERVATION',
+        notes: `Stock reserved for Order #${newOrder.id}`,
+      });
     }
 
     // Calculate total amount in PostgreSQL (NUMERIC precision) and update orders.total_amount
@@ -189,8 +200,8 @@ export const getOrdersList = async (queryParams = {}, reqUser) => {
     throw new AppError('Limit must be an integer greater than or equal to 1', 400);
   }
 
-  if (limit > 100) {
-    limit = 100;
+  if (limit > 1000) {
+    limit = 1000;
   }
 
   let parsedUserId = undefined;
@@ -292,10 +303,22 @@ export const updateOrderStatus = async (id, newStatus, reqUser) => {
         await orderRepo.lockInventoryRowsForProductsInClient(client, productIds);
 
         for (const item of items) {
-          await orderRepo.restoreInventoryQuantityInClient(client, {
+          const restoreResult = await orderRepo.restoreInventoryQuantityInClient(client, {
             product_id: item.product_id,
             quantity: item.quantity,
           });
+
+          // Record audit ledger entry
+          if (restoreResult) {
+            await inventoryRepo.createMovementInClient(client, {
+              product_id: item.product_id,
+              order_id: numericId,
+              change_quantity: item.quantity,
+              resulting_quantity: restoreResult.quantity,
+              movement_type: 'ORDER_CANCEL_RESTORE',
+              notes: `Stock restored from cancelled Order #${numericId}`,
+            });
+          }
         }
       }
 

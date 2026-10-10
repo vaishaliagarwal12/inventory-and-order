@@ -205,6 +205,34 @@ export const updateOrderStatusApi = async (id, status) => {
   });
 };
 
+// --- INVENTORY MOVEMENTS & AUDIT LEDGER APIs ---
+export const getInventoryMovementsApi = async (params = {}) => {
+  const query = new URLSearchParams();
+  if (params.page) query.append('page', params.page);
+  if (params.limit) query.append('limit', params.limit);
+  if (params.product_id) query.append('product_id', params.product_id);
+  if (params.movement_type) query.append('movement_type', params.movement_type);
+
+  const queryString = query.toString() ? `?${query.toString()}` : '';
+  return await apiFetch(`/inventory/movements${queryString}`, { method: 'GET' });
+};
+
+// --- REPORT APIs ---
+export const getReportsSummaryApi = async () => {
+  return await apiFetch('/reports/dashboard', { method: 'GET' });
+};
+
+// --- CUSTOMER ADMIN APIs ---
+export const getCustomersApi = async (params = {}) => {
+  const query = new URLSearchParams();
+  if (params.page) query.append('page', params.page);
+  if (params.limit) query.append('limit', params.limit);
+  if (params.search) query.append('search', params.search);
+
+  const queryString = query.toString() ? `?${query.toString()}` : '';
+  return await apiFetch(`/users/customers${queryString}`, { method: 'GET' });
+};
+
 // --- CURRENCY APIs ---
 export const getExchangeRatesApi = async () => {
   return await apiFetch('/currency/rates', { method: 'GET' });

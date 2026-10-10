@@ -16,7 +16,9 @@
     "inventory:verify": "node src/db/verify_inventory_api.js",
     "orders:verify": "node src/db/verify_order_api.js",
     "auth:verify": "node src/db/verify_auth_api.js",
-    "currency:verify": "node src/db/verify_currency_api.js"
+    "currency:verify": "node src/db/verify_currency_api.js",
+    "movements:verify": "node src/db/verify_inventory_movements_api.js",
+    "roles:verify": "node src/db/verify_role_experiences_api.js"
   },
   "keywords": [
     "inventory",

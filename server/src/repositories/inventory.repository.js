@@ -137,6 +137,16 @@ export const create = async ({ product_id, quantity }) => {
   return result.rows[0];
 };
 
+export const createInClient = async (client, { product_id, quantity }) => {
+  const query = `
+    INSERT INTO inventory (product_id, quantity)
+    VALUES ($1, $2)
+    RETURNING id, product_id, quantity, created_at, updated_at
+  `;
+  const result = await client.query(query, [product_id, quantity]);
+  return result.rows[0];
+};
+
 export const updateQuantityByProductId = async (productId, quantity) => {
   const query = `
     UPDATE inventory
@@ -145,6 +155,17 @@ export const updateQuantityByProductId = async (productId, quantity) => {
     RETURNING id, product_id, quantity, created_at, updated_at
   `;
   const result = await pool.query(query, [quantity, productId]);
+  return result.rows[0] || null;
+};
+
+export const updateQuantityInClient = async (client, productId, quantity) => {
+  const query = `
+    UPDATE inventory
+    SET quantity = $1
+    WHERE product_id = $2
+    RETURNING id, product_id, quantity, created_at, updated_at
+  `;
+  const result = await client.query(query, [quantity, productId]);
   return result.rows[0] || null;
 };
 
@@ -163,3 +184,119 @@ export const adjustQuantityAtomic = async (productId, change) => {
   const result = await pool.query(query, [change, productId]);
   return result.rows[0] || null;
 };
+
+export const adjustQuantityInClient = async (client, productId, change) => {
+  const query = `
+    UPDATE inventory
+    SET quantity = quantity + $1
+    WHERE product_id = $2 AND (quantity + $1) >= 0
+    RETURNING id, product_id, quantity, created_at, updated_at
+  `;
+  const result = await client.query(query, [change, productId]);
+  return result.rows[0] || null;
+};
+
+// -----------------------------------------------------------------------------
+// INVENTORY MOVEMENTS (AUDIT LEDGER REPOSITORY METHODS)
+// -----------------------------------------------------------------------------
+
+export const createMovementInClient = async (
+  client,
+  { product_id, order_id = null, change_quantity, resulting_quantity, movement_type, notes = null }
+) => {
+  const query = `
+    INSERT INTO inventory_movements (product_id, order_id, change_quantity, resulting_quantity, movement_type, notes)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, product_id, order_id, change_quantity, resulting_quantity, movement_type, notes, created_at
+  `;
+  const result = await client.query(query, [
+    product_id,
+    order_id,
+    change_quantity,
+    resulting_quantity,
+    movement_type,
+    notes,
+  ]);
+  return result.rows[0];
+};
+
+export const createMovement = async ({
+  product_id,
+  order_id = null,
+  change_quantity,
+  resulting_quantity,
+  movement_type,
+  notes = null,
+}) => {
+  const query = `
+    INSERT INTO inventory_movements (product_id, order_id, change_quantity, resulting_quantity, movement_type, notes)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, product_id, order_id, change_quantity, resulting_quantity, movement_type, notes, created_at
+  `;
+  const result = await pool.query(query, [
+    product_id,
+    order_id,
+    change_quantity,
+    resulting_quantity,
+    movement_type,
+    notes,
+  ]);
+  return result.rows[0];
+};
+
+export const findMovementsAndCount = async ({ page = 1, limit = 10, product_id, movement_type }) => {
+  const offset = (page - 1) * limit;
+  const whereClauses = [];
+  const queryParams = [];
+
+  if (product_id !== undefined && product_id !== null && product_id !== '') {
+    queryParams.push(product_id);
+    whereClauses.push(`im.product_id = $${queryParams.length}`);
+  }
+
+  if (movement_type !== undefined && movement_type !== null && movement_type !== '') {
+    queryParams.push(movement_type);
+    whereClauses.push(`im.movement_type = $${queryParams.length}`);
+  }
+
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+  const countQuery = `
+    SELECT COUNT(*)::int AS total
+    FROM inventory_movements im
+    ${whereSql}
+  `;
+  const countResult = await pool.query(countQuery, queryParams);
+  const total = countResult.rows[0]?.total || 0;
+
+  queryParams.push(limit);
+  const limitParamIndex = queryParams.length;
+  queryParams.push(offset);
+  const offsetParamIndex = queryParams.length;
+
+  const dataQuery = `
+    SELECT
+      im.id,
+      im.product_id,
+      p.name AS product_name,
+      im.order_id,
+      im.change_quantity,
+      im.resulting_quantity,
+      im.movement_type,
+      im.notes,
+      im.created_at
+    FROM inventory_movements im
+    LEFT JOIN products p ON im.product_id = p.id
+    ${whereSql}
+    ORDER BY im.id DESC
+    LIMIT $${limitParamIndex} OFFSET $${offsetParamIndex}
+  `;
+
+  const dataResult = await pool.query(dataQuery, queryParams);
+
+  return {
+    rows: dataResult.rows,
+    total,
+  };
+};
+

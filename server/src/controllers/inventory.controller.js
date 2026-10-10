@@ -85,3 +85,31 @@ export const adjustInventoryQuantity = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getInventoryMovements = async (req, res, next) => {
+  try {
+    const result = await inventoryService.getInventoryMovementsList(req.query);
+    return res.status(200).json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getInventoryMovementsByProductId = async (req, res, next) => {
+  try {
+    const query = { ...req.query, product_id: req.params.productId };
+    const result = await inventoryService.getInventoryMovementsList(query);
+    return res.status(200).json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

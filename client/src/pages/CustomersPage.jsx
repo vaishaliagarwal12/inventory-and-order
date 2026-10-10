@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, UserCheck, AlertCircle, RefreshCw, Mail, Calendar } from 'lucide-react';
-import { getUsersApi } from '../services/api';
+import { Users, Shield, UserCheck, AlertCircle, RefreshCw, Mail, Calendar, DollarSign } from 'lucide-react';
+import { getCustomersApi } from '../services/api';
+import { CurrencyPrice } from '../components/CurrencyPrice';
 
 export const CustomersPage = () => {
   const [users, setUsers] = useState([]);
@@ -15,10 +16,10 @@ export const CustomersPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await getUsersApi();
+      const res = await getCustomersApi({ limit: 100 });
       setUsers(res.data || []);
     } catch (err) {
-      setError(err.message || 'Failed to fetch user directory');
+      setError(err.message || 'Failed to fetch customer directory');
     } finally {
       setLoading(false);
     }

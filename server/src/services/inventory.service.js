@@ -1,3 +1,4 @@
+import { pool } from '../config/db.js';
 import * as inventoryRepo from '../repositories/inventory.repository.js';
 import * as productRepo from '../repositories/product.repository.js';
 import { AppError } from '../utils/errors.js';
@@ -29,8 +30,8 @@ export const getInventoryList = async (queryParams = {}) => {
     throw new AppError('Limit must be an integer greater than or equal to 1', 400);
   }
 
-  if (limit > 100) {
-    limit = 100;
+  if (limit > 1000) {
+    limit = 1000;
   }
 
   const stockStatusFilter = queryParams.stock_status;
@@ -136,17 +137,37 @@ export const createInitialInventory = async ({ product_id, quantity }) => {
     throw new AppError(`Inventory record already exists for product ID ${numericProductId}`, 409);
   }
 
-  const created = await inventoryRepo.create({
-    product_id: numericProductId,
-    quantity: numericQuantity,
-  });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
 
-  // Fetch complete joined product metadata
-  const fullInventory = await inventoryRepo.findById(created.id);
-  return {
-    ...fullInventory,
-    stock_status: calculateStockStatus(fullInventory.quantity),
-  };
+    const created = await inventoryRepo.createInClient(client, {
+      product_id: numericProductId,
+      quantity: numericQuantity,
+    });
+
+    await inventoryRepo.createMovementInClient(client, {
+      product_id: numericProductId,
+      order_id: null,
+      change_quantity: numericQuantity,
+      resulting_quantity: numericQuantity,
+      movement_type: 'INITIAL_STOCK',
+      notes: 'Initial inventory creation',
+    });
+
+    await client.query('COMMIT');
+
+    const fullInventory = await inventoryRepo.findById(created.id);
+    return {
+      ...fullInventory,
+      stock_status: calculateStockStatus(fullInventory.quantity),
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 };
 
 export const updateQuantityByProductId = async (productId, { quantity }) => {
@@ -176,12 +197,39 @@ export const updateQuantityByProductId = async (productId, { quantity }) => {
     );
   }
 
-  const updated = await inventoryRepo.updateQuantityByProductId(numericProductId, numericQuantity);
-  const fullInventory = await inventoryRepo.findById(updated.id);
-  return {
-    ...fullInventory,
-    stock_status: calculateStockStatus(fullInventory.quantity),
-  };
+  const change = numericQuantity - existingInventory.quantity;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const updated = await inventoryRepo.updateQuantityInClient(client, numericProductId, numericQuantity);
+
+    if (change !== 0) {
+      const movementType = change > 0 ? 'RESTOCK' : 'ADMIN_ADJUSTMENT';
+      await inventoryRepo.createMovementInClient(client, {
+        product_id: numericProductId,
+        order_id: null,
+        change_quantity: change,
+        resulting_quantity: numericQuantity,
+        movement_type: movementType,
+        notes: `Admin stock override from ${existingInventory.quantity} to ${numericQuantity}`,
+      });
+    }
+
+    await client.query('COMMIT');
+
+    const fullInventory = await inventoryRepo.findById(updated.id);
+    return {
+      ...fullInventory,
+      stock_status: calculateStockStatus(fullInventory.quantity),
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 };
 
 export const adjustQuantityByProductId = async (productId, { change }) => {
@@ -212,17 +260,85 @@ export const adjustQuantityByProductId = async (productId, { change }) => {
     throw new AppError('Inventory record not found for this product', 404);
   }
 
-  // Atomic Update: Executed directly in database
-  const result = await inventoryRepo.adjustQuantityAtomic(numericProductId, numericChange);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
 
-  // If result is null, it means (current_quantity + change) < 0
-  if (!result) {
-    throw new AppError('Insufficient stock. Inventory cannot become negative.', 400);
+    const result = await inventoryRepo.adjustQuantityInClient(client, numericProductId, numericChange);
+
+    // If result is null, it means (current_quantity + change) < 0
+    if (!result) {
+      throw new AppError('Insufficient stock. Inventory cannot become negative.', 400);
+    }
+
+    const movementType = numericChange > 0 ? 'RESTOCK' : 'ADMIN_ADJUSTMENT';
+    await inventoryRepo.createMovementInClient(client, {
+      product_id: numericProductId,
+      order_id: null,
+      change_quantity: numericChange,
+      resulting_quantity: result.quantity,
+      movement_type: movementType,
+      notes: `Admin stock adjustment by ${numericChange > 0 ? '+' : ''}${numericChange}`,
+    });
+
+    await client.query('COMMIT');
+
+    const fullInventory = await inventoryRepo.findById(result.id);
+    return {
+      ...fullInventory,
+      stock_status: calculateStockStatus(fullInventory.quantity),
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+export const getInventoryMovementsList = async (queryParams = {}) => {
+  let page = parseInt(queryParams.page || '1', 10);
+  let limit = parseInt(queryParams.limit || '10', 10);
+
+  if (isNaN(page) || page < 1) {
+    throw new AppError('Page number must be an integer greater than or equal to 1', 400);
   }
 
-  const fullInventory = await inventoryRepo.findById(result.id);
+  if (isNaN(limit) || limit < 1) {
+    throw new AppError('Limit must be an integer greater than or equal to 1', 400);
+  }
+
+  if (limit > 100) {
+    limit = 100;
+  }
+
+  let parsedProductId = undefined;
+  if (queryParams.product_id !== undefined && queryParams.product_id !== '') {
+    parsedProductId = parseInt(queryParams.product_id, 10);
+    if (isNaN(parsedProductId) || parsedProductId <= 0) {
+      throw new AppError('Invalid product_id filter', 400);
+    }
+  }
+
+  const movementType = queryParams.movement_type ? String(queryParams.movement_type).trim() : undefined;
+
+  const { rows, total } = await inventoryRepo.findMovementsAndCount({
+    page,
+    limit,
+    product_id: parsedProductId,
+    movement_type: movementType,
+  });
+
+  const totalPages = Math.ceil(total / limit) || (total === 0 ? 0 : 1);
+
   return {
-    ...fullInventory,
-    stock_status: calculateStockStatus(fullInventory.quantity),
+    data: rows,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
   };
 };
+

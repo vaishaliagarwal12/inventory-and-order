@@ -4,32 +4,32 @@ const ThemeContext = createContext();
 
 export const THEMES = [
   {
-    id: 'dark',
-    name: 'Dark',
-    type: 'dark',
-    color: '#00c2ff',
-    badge: 'Standard',
-  },
-  {
-    id: 'light',
-    name: 'Light',
+    id: 'sapphire',
+    name: 'Navy & Teal',
     type: 'light',
-    color: '#0284c7',
-    badge: 'Standard',
+    color: '#2F4156',
+    badge: 'Default',
   },
   {
-    id: 'desktop-dark',
-    name: 'Desktop Dark',
-    type: 'dark',
-    color: '#6366f1',
-    badge: 'Enterprise',
-  },
-  {
-    id: 'desktop-light',
-    name: 'Desktop Light',
+    id: 'coral',
+    name: 'Warm Coral',
     type: 'light',
-    color: '#4f46e5',
-    badge: 'Enterprise',
+    color: '#f97316',
+    badge: 'Warm',
+  },
+  {
+    id: 'violet',
+    name: 'Soft Violet',
+    type: 'light',
+    color: '#7c3aed',
+    badge: 'Purple',
+  },
+  {
+    id: 'softblue',
+    name: 'Sky Blue',
+    type: 'light',
+    color: '#0ea5e9',
+    badge: 'Sky',
   },
 ];
 
@@ -37,12 +37,12 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setThemeState] = useState(() => {
     try {
       const saved = localStorage.getItem('theme') || localStorage.getItem('nexus_theme');
-      if (['dark', 'light', 'desktop-dark', 'desktop-light'].includes(saved)) {
+      if (['sapphire', 'coral', 'violet', 'softblue'].includes(saved)) {
         return saved;
       }
-      return 'dark';
+      return 'sapphire';
     } catch (e) {
-      return 'dark';
+      return 'sapphire';
     }
   });
 
@@ -59,15 +59,8 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
-
-    const activeThemeObj = THEMES.find((t) => t.id === theme);
-    if (activeThemeObj?.type === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    }
+    root.classList.remove('dark');
+    root.classList.add('light');
   }, [theme]);
 
   return (
@@ -84,3 +77,4 @@ export const useTheme = () => {
   }
   return context;
 };
+

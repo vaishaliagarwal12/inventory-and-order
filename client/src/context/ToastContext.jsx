@@ -28,34 +28,34 @@ export const ToastProvider = ({ children }) => {
     <ToastContext.Provider value={{ addToast, removeToast, showSuccess, showError, showWarning, showInfo }}>
       {children}
       {/* Floating Toast Container */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 max-w-sm w-full pointer-events-none">
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col space-y-2.5 max-w-sm w-full pointer-events-none">
         {toasts.map((toast) => {
-          let bgClass = 'bg-slate-900 border-slate-700 text-slate-100';
-          let icon = <Info className="w-5 h-5 text-blue-400 shrink-0" />;
+          let bgClass = 'bg-white border-slate-200 text-slate-800 shadow-xl';
+          let icon = <Info className="w-5 h-5 text-blue-500 shrink-0" />;
 
           if (toast.type === 'success') {
-            bgClass = 'bg-emerald-950/90 border-emerald-700/60 text-emerald-100';
-            icon = <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />;
+            bgClass = 'bg-white border-green-200 text-slate-800 shadow-xl';
+            icon = <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />;
           } else if (toast.type === 'error') {
-            bgClass = 'bg-rose-950/90 border-rose-700/60 text-rose-100';
-            icon = <XCircle className="w-5 h-5 text-rose-400 shrink-0" />;
+            bgClass = 'bg-white border-rose-200 text-slate-800 shadow-xl';
+            icon = <XCircle className="w-5 h-5 text-rose-500 shrink-0" />;
           } else if (toast.type === 'warning') {
-            bgClass = 'bg-amber-950/90 border-amber-700/60 text-amber-100';
-            icon = <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />;
+            bgClass = 'bg-white border-amber-200 text-slate-800 shadow-xl';
+            icon = <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />;
           }
 
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto flex items-center justify-between p-3.5 rounded-xl border backdrop-blur-md shadow-xl transition-all duration-300 transform translate-y-0 ${bgClass}`}
+              className={`pointer-events-auto flex items-center justify-between p-3.5 rounded-2xl border shadow-lg transition-all duration-300 transform translate-y-0 ${bgClass}`}
             >
               <div className="flex items-center space-x-3 pr-2">
                 {icon}
-                <p className="text-xs font-medium leading-relaxed">{toast.message}</p>
+                <p className="text-xs font-semibold leading-relaxed">{toast.message}</p>
               </div>
               <button
                 onClick={() => removeToast(toast.id)}
-                className="text-slate-400 hover:text-slate-200 p-1 rounded-lg transition-colors"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>

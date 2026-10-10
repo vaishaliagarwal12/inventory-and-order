@@ -23,6 +23,7 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchValue, setSearchValue] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
 
   // Signals to open creation modals on Products or Categories pages from Dashboard shortcuts
   const [openAddProductSignal, setOpenAddProductSignal] = useState(false);
@@ -31,6 +32,11 @@ function AppContent() {
   const handleSelectOrder = (orderId) => {
     setSelectedOrderId(orderId);
     setActiveTab('orders');
+  };
+
+  const handleSelectCategory = (categoryId) => {
+    setSelectedCategoryId(categoryId || '');
+    setActiveTab('products');
   };
 
   const handleShortcutAddProduct = () => {
@@ -58,6 +64,7 @@ function AppContent() {
           <CustomerDashboard
             setActiveTab={setActiveTab}
             onSelectOrder={handleSelectOrder}
+            onSelectCategory={handleSelectCategory}
           />
         );
 
@@ -65,19 +72,19 @@ function AppContent() {
         return (
           <ProductsPage
             globalSearch={searchValue}
+            initialCategory={selectedCategoryId}
             openAddModalSignal={openAddProductSignal}
             onModalHandled={() => setOpenAddProductSignal(false)}
           />
         );
 
       case 'categories':
-        return isAdmin ? (
+        return (
           <CategoriesPage
             openAddModalSignal={openAddCategorySignal}
             onModalHandled={() => setOpenAddCategorySignal(false)}
+            onSelectCategory={handleSelectCategory}
           />
-        ) : (
-          <CustomerDashboard setActiveTab={setActiveTab} onSelectOrder={handleSelectOrder} />
         );
 
       case 'inventory':

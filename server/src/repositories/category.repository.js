@@ -6,9 +6,17 @@ import { pool } from '../config/db.js';
  */
 export const findAll = async () => {
   const query = `
-    SELECT id, name, description, created_at, updated_at
-    FROM categories
-    ORDER BY id ASC
+    SELECT
+      c.id,
+      c.name,
+      c.description,
+      c.created_at,
+      c.updated_at,
+      COUNT(p.id) FILTER (WHERE p.name NOT ILIKE 'Verify%' AND p.name NOT ILIKE 'Order Test%' AND p.name NOT ILIKE 'Single Stock%' AND p.name NOT ILIKE 'Test Product%' AND p.name NOT ILIKE 'Sports Gear%')::int AS product_count
+    FROM categories c
+    LEFT JOIN products p ON c.id = p.category_id
+    GROUP BY c.id
+    ORDER BY c.id ASC
   `;
   const result = await pool.query(query);
   return result.rows;

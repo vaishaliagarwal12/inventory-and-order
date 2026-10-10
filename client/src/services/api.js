@@ -11,15 +11,38 @@ export const apiFetch = async (endpoint, options = {}) => {
     ...options.headers,
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || `HTTP Error ${response.status}`);
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (err) {
+    throw new Error(`Unable to connect to backend API server (${err.message || 'Network error'})`);
   }
+
+  let data = null;
+  const contentType = response.headers.get('content-type');
+
+  if (contentType && contentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+  } else {
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(
+        (text && text.trim()) || `Request failed with status ${response.status}`
+      );
+    }
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.message || `Request failed with status ${response.status}`);
+  }
+
   return data;
 };
 

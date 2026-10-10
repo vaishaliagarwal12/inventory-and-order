@@ -2,34 +2,34 @@ import React from 'react';
 import { Clock, CheckCircle2, Package, Truck, CheckCheck, XCircle, AlertTriangle } from 'lucide-react';
 
 export const OrderStatusBadge = ({ status }) => {
-  let badgeStyle = 'bg-slate-800 text-slate-300 border-slate-700';
+  let badgeStyle = 'bg-slate-100 text-slate-700 border-slate-200';
   let icon = <Clock className="w-3.5 h-3.5" />;
   let label = status;
 
   switch (status) {
     case 'PENDING':
-      badgeStyle = 'bg-amber-950/50 text-amber-300 border-amber-800/60';
-      icon = <Clock className="w-3.5 h-3.5" />;
+      badgeStyle = 'bg-[#FEF3C7] text-[#B45309] border-amber-200';
+      icon = <Clock className="w-3.5 h-3.5 text-[#B45309]" />;
       break;
     case 'CONFIRMED':
-      badgeStyle = 'bg-blue-950/50 text-blue-300 border-blue-800/60';
-      icon = <CheckCircle2 className="w-3.5 h-3.5" />;
+      badgeStyle = 'bg-[#EFF6FF] text-[#1D4ED8] border-blue-200';
+      icon = <CheckCircle2 className="w-3.5 h-3.5 text-[#1D4ED8]" />;
       break;
     case 'PROCESSING':
-      badgeStyle = 'bg-indigo-950/50 text-indigo-300 border-indigo-800/60';
-      icon = <Package className="w-3.5 h-3.5" />;
+      badgeStyle = 'bg-[#F5F3FF] text-[#6D28D9] border-purple-200';
+      icon = <Package className="w-3.5 h-3.5 text-[#6D28D9]" />;
       break;
     case 'SHIPPED':
-      badgeStyle = 'bg-purple-950/50 text-purple-300 border-purple-800/60';
-      icon = <Truck className="w-3.5 h-3.5" />;
+      badgeStyle = 'bg-[#E0F2FE] text-[#0369A1] border-sky-200';
+      icon = <Truck className="w-3.5 h-3.5 text-[#0369A1]" />;
       break;
     case 'DELIVERED':
-      badgeStyle = 'bg-emerald-950/50 text-emerald-300 border-emerald-800/60';
-      icon = <CheckCheck className="w-3.5 h-3.5" />;
+      badgeStyle = 'bg-[#DCFCE7] text-[#15803D] border-green-200';
+      icon = <CheckCheck className="w-3.5 h-3.5 text-[#15803D]" />;
       break;
     case 'CANCELLED':
-      badgeStyle = 'bg-rose-950/50 text-rose-300 border-rose-800/60';
-      icon = <XCircle className="w-3.5 h-3.5" />;
+      badgeStyle = 'bg-[#FEE2E2] text-[#B91C1C] border-red-200';
+      icon = <XCircle className="w-3.5 h-3.5 text-[#B91C1C]" />;
       break;
     default:
       break;
@@ -44,22 +44,22 @@ export const OrderStatusBadge = ({ status }) => {
 };
 
 export const StockStatusBadge = ({ status, quantity }) => {
-  let badgeStyle = 'bg-slate-800 text-slate-300 border-slate-700';
+  let badgeStyle = 'bg-slate-100 text-slate-700 border-slate-200';
   let label = 'IN STOCK';
   let icon = <CheckCircle2 className="w-3.5 h-3.5" />;
 
   if (status === 'out_of_stock' || quantity === 0) {
-    badgeStyle = 'bg-rose-950/50 text-rose-300 border-rose-800/60';
+    badgeStyle = 'bg-[#FEE2E2] text-[#B91C1C] border-red-200';
     label = 'OUT OF STOCK';
-    icon = <XCircle className="w-3.5 h-3.5" />;
+    icon = <XCircle className="w-3.5 h-3.5 text-[#B91C1C]" />;
   } else if (status === 'low_stock' || (quantity > 0 && quantity <= 10)) {
-    badgeStyle = 'bg-amber-950/50 text-amber-300 border-amber-800/60';
+    badgeStyle = 'bg-[#FFEDD5] text-[#C2410C] border-orange-200';
     label = `LOW STOCK (${quantity})`;
-    icon = <AlertTriangle className="w-3.5 h-3.5" />;
+    icon = <AlertTriangle className="w-3.5 h-3.5 text-[#C2410C]" />;
   } else {
-    badgeStyle = 'bg-emerald-950/50 text-emerald-300 border-emerald-800/60';
+    badgeStyle = 'bg-[#DCFCE7] text-[#15803D] border-green-200';
     label = `IN STOCK (${quantity})`;
-    icon = <CheckCircle2 className="w-3.5 h-3.5" />;
+    icon = <CheckCircle2 className="w-3.5 h-3.5 text-[#15803D]" />;
   }
 
   return (
@@ -69,3 +69,4 @@ export const StockStatusBadge = ({ status, quantity }) => {
     </span>
   );
 };
+

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Boxes, LogIn, UserPlus, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ShoppingBag, LogIn, UserPlus, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
@@ -52,35 +52,35 @@ export const AuthPage = ({ onSuccessRedirect }) => {
   };
 
   return (
-    <div className="min-h-full flex items-center justify-center p-6 bg-slate-950">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl space-y-6">
+    <div className="min-h-full flex items-center justify-center p-6 bg-slate-50/70 py-12">
+      <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-xl space-y-6">
         {/* Brand Logo & Heading */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white shadow-xl shadow-cyan-500/20 mb-2">
-            <Boxes className="w-7 h-7" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-navy text-white shadow-md shadow-navy/20 mb-2">
+            <ShoppingBag className="w-8 h-8 text-sky-light" />
           </div>
-          <h2 className="text-xl font-bold text-slate-100">
-            {isLoginTab ? 'Sign in to Nexus Control' : 'Create a Customer Account'}
+          <h2 className="text-2xl font-black text-navy tracking-tight">
+            {isLoginTab ? 'Welcome Back to ShopFlow' : 'Create Your Account'}
           </h2>
-          <p className="text-xs text-slate-400">
-            {isLoginTab ? 'Access product catalog, inventory & order tracking' : 'Register to start browsing & placing orders'}
+          <p className="text-xs text-slate-500">
+            {isLoginTab ? 'Sign in to access your orders, cart, and account settings' : 'Join ShopFlow to enjoy seamless shopping and express delivery'}
           </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
           <button
             type="button"
             onClick={() => {
               setIsLoginTab(true);
               setErrorMsg('');
             }}
-            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-2 ${
-              isLoginTab ? 'bg-slate-800 text-cyan-300 shadow-sm' : 'text-slate-400 hover:text-slate-200'
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 cursor-pointer ${
+              isLoginTab ? 'bg-white text-navy shadow-sm' : 'text-slate-500 hover:text-navy'
             }`}
           >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>Login</span>
+            <LogIn className="w-4 h-4 text-teal" />
+            <span>Sign In</span>
           </button>
           <button
             type="button"
@@ -88,19 +88,19 @@ export const AuthPage = ({ onSuccessRedirect }) => {
               setIsLoginTab(false);
               setErrorMsg('');
             }}
-            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-2 ${
-              !isLoginTab ? 'bg-slate-800 text-cyan-300 shadow-sm' : 'text-slate-400 hover:text-slate-200'
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 cursor-pointer ${
+              !isLoginTab ? 'bg-white text-navy shadow-sm' : 'text-slate-500 hover:text-navy'
             }`}
           >
-            <UserPlus className="w-3.5 h-3.5" />
+            <UserPlus className="w-4 h-4 text-teal" />
             <span>Register</span>
           </button>
         </div>
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-300 text-xs flex items-center space-x-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs flex items-center space-x-2.5 shadow-xs">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -109,32 +109,32 @@ export const AuthPage = ({ onSuccessRedirect }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLoginTab && (
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
+              <label className="block text-xs font-bold text-navy mb-1">Full Name</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal focus:bg-white transition-all font-medium"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
+            <label className="block text-xs font-bold text-navy mb-1">Email Address</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@example.com"
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal focus:bg-white transition-all font-medium"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Password</label>
+            <label className="block text-xs font-bold text-navy mb-1">Password</label>
             <input
               type="password"
               required
@@ -142,13 +142,13 @@ export const AuthPage = ({ onSuccessRedirect }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal focus:bg-white transition-all font-medium"
             />
           </div>
 
           {!isLoginTab && (
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Confirm Password</label>
+              <label className="block text-xs font-bold text-navy mb-1">Confirm Password</label>
               <input
                 type="password"
                 required
@@ -156,7 +156,7 @@ export const AuthPage = ({ onSuccessRedirect }) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-navy placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal focus:bg-white transition-all font-medium"
               />
             </div>
           )}
@@ -164,41 +164,41 @@ export const AuthPage = ({ onSuccessRedirect }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 text-xs font-semibold rounded-xl text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 flex items-center justify-center space-x-2"
+            className="w-full py-3.5 text-xs font-bold rounded-xl text-white bg-navy hover:bg-navy-dark transition-all shadow-md shadow-navy/20 disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
           >
-            {loading && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>}
-            <span>{isLoginTab ? 'Sign In' : 'Create Customer Account'}</span>
+            {loading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>}
+            <span>{isLoginTab ? 'Sign In to Account' : 'Create Customer Account'}</span>
           </button>
         </form>
 
         {/* Quick Dev Preset Sign-In Buttons */}
         {isLoginTab && (
-          <div className="pt-3 border-t border-slate-800 space-y-2">
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-center">
-              Quick Developer Login Presets
+          <div className="pt-4 border-t border-slate-100 space-y-2">
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">
+              Quick Demo Sign-In
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => fillDevUser('admin@inventory.com', 'Password123')}
-                className="p-2 text-left bg-slate-950 hover:bg-slate-800/80 border border-purple-500/30 rounded-xl transition-all group"
+                className="p-2.5 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all group cursor-pointer"
               >
-                <div className="flex items-center space-x-1.5 text-purple-400 text-xs font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                <div className="flex items-center space-x-1.5 text-navy text-xs font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5 text-teal" />
                   <span>Admin User</span>
                 </div>
-                <p className="text-[10px] text-slate-400 truncate mt-0.5">admin@inventory.com</p>
+                <p className="text-[10px] text-slate-500 truncate mt-0.5 font-medium">admin@inventory.com</p>
               </button>
               <button
                 type="button"
                 onClick={() => fillDevUser('alice@example.com', 'Password123')}
-                className="p-2 text-left bg-slate-950 hover:bg-slate-800/80 border border-cyan-500/30 rounded-xl transition-all group"
+                className="p-2.5 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all group cursor-pointer"
               >
-                <div className="flex items-center space-x-1.5 text-cyan-400 text-xs font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <div className="flex items-center space-x-1.5 text-navy text-xs font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-teal" />
                   <span>Customer Alice</span>
                 </div>
-                <p className="text-[10px] text-slate-400 truncate mt-0.5">alice@example.com</p>
+                <p className="text-[10px] text-slate-500 truncate mt-0.5 font-medium">alice@example.com</p>
               </button>
             </div>
           </div>

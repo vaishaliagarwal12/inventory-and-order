@@ -44,12 +44,20 @@ export const getProducts = async (queryParams = {}) => {
 
   const search = queryParams.search ? String(queryParams.search).trim() : undefined;
 
+  let excludeTest = false;
+  if (queryParams.exclude_test === 'true' || queryParams.exclude_test === true || queryParams.exclude_test === undefined) {
+    if (queryParams.exclude_test !== 'false' && queryParams.exclude_test !== false) {
+      excludeTest = true;
+    }
+  }
+
   const { rows, total } = await productRepo.findAndCountAll({
     page,
     limit,
     search,
     category_id: parsedCategoryId,
     is_active: parsedIsActive,
+    exclude_test: excludeTest,
   });
 
   const totalPages = Math.ceil(total / limit) || (total === 0 ? 0 : 1);

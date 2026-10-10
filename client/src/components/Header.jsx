@@ -3,7 +3,6 @@ import { Search, ShoppingCart, LogOut, User, Shield, LogIn, Globe } from 'lucide
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
-import { ThemeSelector } from './ThemeSelector';
 import { AuthModal } from './AuthModal';
 
 export const Header = ({ onSearchChange, searchValue, setActiveTab }) => {
@@ -11,90 +10,126 @@ export const Header = ({ onSearchChange, searchValue, setActiveTab }) => {
   const { cartItemCount } = useCart();
   const { currency, setCurrency } = useCurrency();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   return (
     <>
-      <header className="h-16 bg-[#181b25]/90 backdrop-blur-md border-b border-[#262a34] px-6 flex items-center justify-between shrink-0 z-10 transition-colors">
-        {/* Search Bar */}
-        <div className="flex-1 max-w-md">
+      <header className="h-14 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0 z-20 transition-colors">
+        {/* Brand Logo & Wordmark */}
+        <div className="flex items-center space-x-3 mr-4 shrink-0">
+          <button
+            type="button"
+            onClick={() => setActiveTab && setActiveTab('dashboard')}
+            className="flex items-center space-x-2 text-left cursor-pointer group focus:outline-none"
+          >
+            <div className="w-8 h-8 rounded-lg bg-navy flex items-center justify-center text-white font-black text-sm tracking-tight shadow-xs group-hover:scale-105 transition-transform">
+              SF
+            </div>
+            <span className="font-extrabold text-lg text-navy tracking-tight">
+              ShopFlow
+            </span>
+          </button>
+        </div>
+
+        {/* Global Search Field */}
+        <div className="flex-1 max-w-lg mx-2 sm:mx-6">
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchValue || ''}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-              placeholder="Search products, orders, categories..."
-              className="w-full pl-10 pr-4 py-2 bg-[#0a0e17] border border-[#262a34] rounded-xl text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-[#00c2ff]/50 focus:ring-1 focus:ring-[#00c2ff]/30 transition-all"
+              placeholder="Search products..."
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-100/80 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-teal focus:ring-1 focus:ring-teal/30 rounded-lg text-xs text-navy placeholder:text-slate-400 focus:outline-none transition-all"
             />
           </div>
         </div>
 
-        {/* Right Header Actions */}
+        {/* Right Retail Header Controls */}
         <div className="flex items-center space-x-3 sm:space-x-4">
-          {/* Theme Selector */}
-          <ThemeSelector />
-
           {/* Currency Selector */}
-          <div className="flex items-center space-x-1.5 bg-[#0a0e17] border border-[#262a34] rounded-xl px-2.5 py-1.5 text-xs shadow-inner">
-            <Globe className="w-3.5 h-3.5 text-[#00c2ff] shrink-0" />
-            <span className="text-[10px] font-semibold text-slate-400 hidden lg:inline uppercase">Currency</span>
+          <div className="flex items-center space-x-1 text-xs">
+            <Globe className="w-3.5 h-3.5 text-teal shrink-0" />
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-slate-200 focus:outline-none cursor-pointer py-0.5"
+              className="bg-transparent text-xs font-bold text-navy focus:outline-none cursor-pointer pr-1"
             >
-              <option value="USD" className="bg-[#181b25] text-slate-200">🇺🇸 USD ($)</option>
-              <option value="INR" className="bg-[#181b25] text-slate-200">🇮🇳 INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="INR">INR (₹)</option>
             </select>
           </div>
 
-          {/* Cart Icon (For Customer or when items present) */}
+          {/* Cart Icon Button with Count Badge */}
           {(!isAdmin || !isAuthenticated) && (
             <button
               onClick={() => setActiveTab && setActiveTab('cart')}
-              className="relative p-2 text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 rounded-xl transition-all"
-              title="View Cart"
+              className="relative p-2 text-navy hover:bg-slate-100 rounded-lg transition-all cursor-pointer"
+              title="Shopping Cart"
             >
-              <ShoppingCart className="w-5 h-5" />
+              <ShoppingCart className="w-5 h-5 text-navy" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500 text-slate-950 shadow-md animate-scaleIn">
+                <span className="absolute -top-0.5 -right-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-navy text-white shadow-xs">
                   {cartItemCount}
                 </span>
               )}
             </button>
           )}
 
-          {/* User Profile & Auth Controls */}
+          {/* Account Control */}
           {isAuthenticated && user ? (
-            <div className="flex items-center space-x-3 pl-2 border-l border-slate-800">
-              <div className="flex items-center space-x-2.5">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
-                  isAdmin ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                }`}>
-                  {isAdmin ? <Shield className="w-4 h-4" /> : <User className="w-4 h-4" />}
-                </div>
-                <div className="hidden sm:block text-left">
-                  <p className="text-xs font-semibold text-slate-200 leading-tight">{user.name}</p>
-                  <p className="text-[10px] text-slate-400">{user.email}</p>
-                </div>
-              </div>
-
+            <div className="relative">
               <button
-                onClick={logout}
-                className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-rose-300 bg-slate-800/80 hover:bg-rose-950/40 border border-slate-700/60 hover:border-rose-700/50 rounded-xl transition-all"
-                title="Logout"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center space-x-2 p-1 rounded-lg hover:bg-slate-100 transition-all text-left cursor-pointer"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Logout</span>
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
+                  isAdmin ? 'bg-navy text-white' : 'bg-sky-light text-navy border border-sky/60'
+                }`}>
+                  {isAdmin ? <Shield className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5 text-navy" />}
+                </div>
+                <span className="hidden md:inline-block text-xs font-bold text-navy truncate max-w-[100px]">
+                  {user.name}
+                </span>
               </button>
+
+              {/* Dropdown Menu */}
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1.5 z-30">
+                  <div className="px-3 py-2 border-b border-slate-100">
+                    <p className="text-xs font-bold text-navy truncate">{user.name}</p>
+                    <p className="text-[10px] text-teal font-semibold capitalize">{user.role}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      setActiveTab && setActiveTab('profile');
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-navy hover:bg-slate-50 flex items-center space-x-2 cursor-pointer"
+                  >
+                    <User className="w-3.5 h-3.5 text-teal" />
+                    <span>Account Profile</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      logout();
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center space-x-2 cursor-pointer border-t border-slate-100"
+                  >
+                    <LogOut className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <button
               onClick={() => setShowAuthModal(true)}
-              className="flex items-center space-x-2 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-xl shadow-lg shadow-cyan-500/20 transition-all"
+              className="flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-navy hover:bg-navy-dark rounded-lg shadow-xs transition-all cursor-pointer"
             >
-              <LogIn className="w-4 h-4" />
-              <span>Login / Register</span>
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Sign In</span>
             </button>
           )}
         </div>

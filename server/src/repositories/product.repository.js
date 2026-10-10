@@ -4,7 +4,7 @@ import { pool } from '../config/db.js';
  * Data Access Layer for Products.
  * Handles parameterized SQL queries for filtering, pagination, search, CRUD, and status updates.
  */
-export const findAndCountAll = async ({ page = 1, limit = 10, search, category_id, is_active }) => {
+export const findAndCountAll = async ({ page = 1, limit = 10, search, category_id, is_active, exclude_test }) => {
   const offset = (page - 1) * limit;
   const whereClauses = [];
   const queryParams = [];
@@ -25,6 +25,11 @@ export const findAndCountAll = async ({ page = 1, limit = 10, search, category_i
   if (is_active !== undefined && is_active !== null && is_active !== '') {
     queryParams.push(is_active);
     whereClauses.push(`p.is_active = $${queryParams.length}`);
+  }
+
+  // Filter out test script artifacts if exclude_test is true
+  if (exclude_test) {
+    whereClauses.push(`p.name NOT ILIKE 'Verify%' AND p.name NOT ILIKE 'Order Test%' AND p.name NOT ILIKE 'Single Stock%' AND p.name NOT ILIKE 'Test Product%' AND p.name NOT ILIKE 'Sports Gear%'`);
   }
 
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';

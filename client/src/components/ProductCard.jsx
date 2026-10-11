@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShoppingCart,
   Edit2,
@@ -9,7 +9,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { CurrencyPrice } from './CurrencyPrice';
-import { getProductImageUrl } from '../utils/productImages';
+import { getProductImageUrl, getCategoryFallbackImageUrl } from '../utils/productImages';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 
@@ -24,7 +24,24 @@ export const ProductCard = ({
 }) => {
   const { cart, addToCart, updateQuantity } = useCart();
   const { showSuccess, showError } = useToast();
-  const [imgError, setImgError] = useState(false);
+
+  const primaryUrl = getProductImageUrl(product);
+  const fallbackUrl = getCategoryFallbackImageUrl(product?.category_name);
+  const [imgSrc, setImgSrc] = useState(primaryUrl);
+  const [hasFailed, setHasFailed] = useState(false);
+
+  useEffect(() => {
+    setImgSrc(getProductImageUrl(product));
+    setHasFailed(false);
+  }, [product?.id, product?.name]);
+
+  const handleImgError = () => {
+    if (imgSrc !== fallbackUrl && fallbackUrl) {
+      setImgSrc(fallbackUrl);
+    } else {
+      setHasFailed(true);
+    }
+  };
 
   // Cart item matching
   const cartItem = cart?.find((item) => (item.product_id || item.id) === product.id);
@@ -32,8 +49,6 @@ export const ProductCard = ({
 
   const isOutOfStock = stockQty <= 0 || product.is_active === false;
   const isLowStock = !isOutOfStock && stockQty <= 10;
-  const imageUrl = getProductImageUrl(product);
-  const showPhoto = imageUrl && !imgError;
 
   const handleAdd = (e) => {
     e.stopPropagation();
@@ -89,11 +104,11 @@ export const ProductCard = ({
         aria-label={`View details for ${product.name}`}
         className="relative w-full aspect-[4/3] bg-gradient-to-b from-slate-50 to-slate-100/60 overflow-hidden flex items-center justify-center p-2 cursor-pointer select-none"
       >
-        {showPhoto ? (
+        {!hasFailed && imgSrc ? (
           <img
-            src={imageUrl}
+            src={imgSrc}
             alt={product.name}
-            onError={() => setImgError(true)}
+            onError={handleImgError}
             className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500 ease-out"
             loading="lazy"
           />

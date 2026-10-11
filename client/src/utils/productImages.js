@@ -50,7 +50,7 @@ const PRODUCT_IMAGE_MAP = {
   // ==========================================
   'stainless steel espresso machine': 'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=600&q=80',
   'non-stick cast iron skillet': 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80',
-  'precision electric gooseneck kettle': 'https://images.unsplash.com/photo-1594213114663-ddf4f240f08d?auto=format&fit=crop&w=600&q=80',
+  'precision electric gooseneck kettle': 'https://images.unsplash.com/photo-1650940925927-f4a30c930a4d?auto=format&fit=crop&w=600&q=80',
   'japanese high-carbon chef knife 8"': 'https://images.unsplash.com/photo-1593618998160-e34014e67546?auto=format&fit=crop&w=600&q=80',
   'organic bamboo food prep cutting board': 'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?auto=format&fit=crop&w=600&q=80',
   'airtight glass food storage containers': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=600&q=80',
@@ -58,7 +58,7 @@ const PRODUCT_IMAGE_MAP = {
   // ==========================================
   // 6. FURNITURE & HOME OFFICE (6 Products)
   // ==========================================
-  'ergonomic mesh swivel office chair': 'https://images.unsplash.com/photo-1580481077195-c22ae4534720?auto=format&fit=crop&w=600&q=80',
+  'ergonomic mesh swivel office chair': 'https://images.unsplash.com/photo-1776548759492-3355a285f68f?auto=format&fit=crop&w=600&q=80',
   'motorized standing desk 55"': 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=600&q=80',
   'architect led task desk lamp': 'https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?auto=format&fit=crop&w=600&q=80',
   'solid wood monitor riser stand': 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=600&q=80',
@@ -79,8 +79,8 @@ const PRODUCT_IMAGE_MAP = {
   // 8. BEAUTY & PERSONAL CARE (6 Products)
   // ==========================================
   'hydrating botanical face serum 30ml': 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
-  'sonic electric toothbrush with travel case': 'https://images.unsplash.com/photo-1559591937-e1032c525f23?auto=format&fit=crop&w=600&q=80',
-  'cold-pressed jojoba & argan hair oil': 'https://images.unsplash.com/photo-1608248597359-0062a4b88ba8?auto=format&fit=crop&w=600&q=80',
+  'sonic electric toothbrush with travel case': 'https://images.unsplash.com/photo-1559591937-c78f24c3d8be?auto=format&fit=crop&w=600&q=80',
+  'cold-pressed jojoba & argan hair oil': 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=600&q=80',
   'natural shea butter body cream 200g': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80',
   'rechargeable men precision beard trimmer': 'https://images.unsplash.com/photo-1621607512214-68297480165e?auto=format&fit=crop&w=600&q=80',
   'mineral sunscreen lotion spf 50': 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80',
@@ -96,7 +96,7 @@ const PRODUCT_IMAGE_MAP = {
   'ultra-light packable crossbody sling bag': 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&q=80'
 };
 
-const CATEGORY_FALLBACK_IMAGES = {
+export const CATEGORY_FALLBACK_IMAGES = {
   electronics: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=600&q=80',
   clothing: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=600&q=80',
   footwear: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80',
@@ -106,6 +106,11 @@ const CATEGORY_FALLBACK_IMAGES = {
   'sports & fitness': 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80',
   'beauty & personal care': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80',
   'bags & travel': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80'
+};
+
+export const getCategoryFallbackImageUrl = (categoryName) => {
+  const categoryLower = (categoryName || '').trim().toLowerCase();
+  return CATEGORY_FALLBACK_IMAGES[categoryLower] || CATEGORY_FALLBACK_IMAGES.electronics;
 };
 
 export const getProductImageUrl = (product) => {

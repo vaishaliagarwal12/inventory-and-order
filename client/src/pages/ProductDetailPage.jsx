@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { getProductByIdApi, getInventoryByProductIdApi } from '../services/api';
 import { CurrencyPrice } from '../components/CurrencyPrice';
-import { getProductImageUrl } from '../utils/productImages';
+import { getProductImageUrl, getCategoryFallbackImageUrl } from '../utils/productImages';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 
@@ -30,8 +30,27 @@ export const ProductDetailPage = ({
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [imgError, setImgError] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  const primaryUrl = product ? getProductImageUrl(product) : '';
+  const fallbackUrl = product ? getCategoryFallbackImageUrl(product?.category_name) : '';
+  const [imgSrc, setImgSrc] = useState(primaryUrl);
+  const [hasFailed, setHasFailed] = useState(false);
+
+  useEffect(() => {
+    if (product) {
+      setImgSrc(getProductImageUrl(product));
+      setHasFailed(false);
+    }
+  }, [product?.id, product?.name]);
+
+  const handleImgError = () => {
+    if (imgSrc !== fallbackUrl && fallbackUrl) {
+      setImgSrc(fallbackUrl);
+    } else {
+      setHasFailed(true);
+    }
+  };
 
   useEffect(() => {
     if (!productId) {
@@ -73,8 +92,6 @@ export const ProductDetailPage = ({
 
   const isOutOfStock = stockQty <= 0 || product?.is_active === false;
   const isLowStock = !isOutOfStock && stockQty <= 10;
-  const imageUrl = product ? getProductImageUrl(product) : '';
-  const showPhoto = imageUrl && !imgError;
 
   const handleAddToCart = () => {
     if (isOutOfStock) {
@@ -181,11 +198,11 @@ export const ProductDetailPage = ({
         {/* Left Column: Product Photography Display */}
         <div className="space-y-4">
           <div className="relative aspect-square w-full rounded-2xl bg-gradient-to-b from-slate-50 to-slate-100/70 border border-slate-200/80 p-4 flex items-center justify-center overflow-hidden shadow-inner group">
-            {showPhoto ? (
+            {!hasFailed && imgSrc ? (
               <img
-                src={imageUrl}
+                src={imgSrc}
                 alt={product.name}
-                onError={() => setImgError(true)}
+                onError={handleImgError}
                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out"
               />
             ) : (

@@ -3,6 +3,7 @@ import app from '../app.js';
 import { pool } from '../config/db.js';
 import jwt from 'jsonwebtoken';
 import { execSync } from 'child_process';
+import { JWT_SECRET } from '../config/jwt.js';
 
 /**
  * AUTOMATED AUTHENTICATION, AUTHORIZATION & SECURITY EDGE CASE VERIFICATION SUITE (PHASE 6)
@@ -223,8 +224,7 @@ async function runAuthApiTests() {
     });
 
     await test('GET /api/auth/me rejects request with expired token (401 Unauthorized)', async () => {
-      const secret = process.env.JWT_SECRET || 'dev_jwt_secret_key_change_in_production_12345';
-      const expiredToken = jwt.sign({ userId: customerAUserId, role: 'CUSTOMER' }, secret, { expiresIn: '-1s' });
+      const expiredToken = jwt.sign({ userId: customerAUserId, role: 'CUSTOMER' }, JWT_SECRET, { expiresIn: '-1s' });
 
       const res = await fetch(`${baseUrl}/auth/me`, {
         headers: { Authorization: `Bearer ${expiredToken}` },

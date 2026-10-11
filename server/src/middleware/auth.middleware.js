@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { AppError } from '../utils/errors.js';
+import { JWT_SECRET } from '../config/jwt.js';
 
 /**
  * Authentication Middleware.
@@ -18,8 +19,7 @@ export const authenticateToken = (req, res, next) => {
   }
 
   try {
-    const secret = process.env.JWT_SECRET || 'dev_jwt_secret_key_change_in_production_12345';
-    const decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, JWT_SECRET);
 
     if (!decoded || !decoded.userId || !decoded.role) {
       return next(new AppError('Invalid token payload', 401));

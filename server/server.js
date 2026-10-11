@@ -1,8 +1,7 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import app from './src/app.js';
 import { testDbConnection } from './src/config/db.js';
-
-dotenv.config();
+import { JWT_SECRET } from './src/config/jwt.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -18,6 +17,8 @@ const startServer = async () => {
     console.warn(`⚠️ [Database] ${dbStatus.message}`);
     console.warn('   Server will start, but database operations may fail until connection is configured.');
   }
+
+  console.log('🔒 [Security] JWT configuration validated successfully');
 
   app.listen(PORT, () => {
     console.log(`📡 Server running on http://localhost:${PORT}`);

@@ -3,6 +3,7 @@ import app from '../app.js';
 import { pool } from '../config/db.js';
 import jwt from 'jsonwebtoken';
 import { execSync } from 'child_process';
+import { JWT_SECRET } from '../config/jwt.js';
 
 /**
  * AUTOMATED ORDER API, TRANSACTION ROLLBACK & CONCURRENCY VERIFICATION SUITE (PHASE 5)
@@ -13,7 +14,7 @@ async function runOrderApiTests() {
   const port = server.address().port;
   const baseUrl = `http://localhost:${port}/api`;
 
-  const jwtSecret = process.env.JWT_SECRET || 'dev_jwt_secret_key_change_in_production_12345';
+  const jwtSecret = JWT_SECRET;
   const adminToken = jwt.sign({ userId: 1, role: 'ADMIN' }, jwtSecret, { expiresIn: '1d' });
   const customerToken = jwt.sign({ userId: 2, role: 'CUSTOMER' }, jwtSecret, { expiresIn: '1d' });
   const customerBToken = jwt.sign({ userId: 3, role: 'CUSTOMER' }, jwtSecret, { expiresIn: '1d' });

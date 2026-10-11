@@ -5,8 +5,8 @@ import * as userRepo from '../repositories/user.repository.js';
 import * as productRepo from '../repositories/product.repository.js';
 import * as inventoryRepo from '../repositories/inventory.repository.js';
 import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config/jwt.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret_key_change_in_production_12345';
 let server;
 let baseUrl;
 

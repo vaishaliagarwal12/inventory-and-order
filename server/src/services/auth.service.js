@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as userRepo from '../repositories/user.repository.js';
 import { AppError } from '../utils/errors.js';
+import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/jwt.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -75,16 +76,13 @@ export const loginUser = async ({ email, password }) => {
   }
 
   // 3. Generate JWT containing userId and role
-  const secret = process.env.JWT_SECRET || 'dev_jwt_secret_key_change_in_production_12345';
-  const expiresIn = process.env.JWT_EXPIRES_IN || '1d';
-
   const token = jwt.sign(
     {
       userId: user.id,
       role: user.role,
     },
-    secret,
-    { expiresIn }
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
   );
 
   const safeUser = {

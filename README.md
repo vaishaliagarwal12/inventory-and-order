@@ -283,7 +283,7 @@ cd client
 npm install
 npm run dev
 ```
-The React frontend application will launch at `http://localhost:5173`.
+The React frontend application will launch at `http://localhost:3000`.
 
 ---
 
@@ -310,6 +310,15 @@ npm run auth:verify
 
 # Currency Exchange Rates API Suite (2 tests)
 npm run currency:verify
+
+# Inventory Movements & Audit Ledger Suite (14 tests)
+npm run movements:verify
+
+# Role Experiences & Authorization Suite (15 tests)
+npm run roles:verify
+
+# Database Catalog Integrity Verification
+npm run catalog:verify
 ```
 
 ### Frontend Production Build Test

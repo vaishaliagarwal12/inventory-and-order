@@ -19,7 +19,7 @@ import { CurrencyPrice } from '../components/CurrencyPrice';
 import { AuthModal } from '../components/AuthModal';
 import { getProductImageUrl } from '../utils/productImages';
 
-export const CartPage = ({ setActiveTab, onOrderPlaced }) => {
+export const CartPage = ({ setActiveTab, onOrderPlaced, onSelectProduct }) => {
   const { cart, updateQuantity, removeFromCart, clearCart, cartTotal, cartItemCount } = useCart();
   const { isAuthenticated, logout } = useAuth();
   const { showSuccess, showError } = useToast();
@@ -152,7 +152,13 @@ export const CartPage = ({ setActiveTab, onOrderPlaced }) => {
                   <div key={item.product_id || item.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     {/* Item Image & Title */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-16 h-16 rounded-lg bg-slate-50 border border-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                      <div
+                        onClick={() => onSelectProduct && onSelectProduct(item.product_id || item.id)}
+                        role="button"
+                        tabIndex={0}
+                        className="w-16 h-16 rounded-lg bg-slate-50 border border-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                        title="View product details"
+                      >
                         {imgUrl ? (
                           <img src={imgUrl} alt={item.name} className="w-full h-full object-cover" />
                         ) : (
@@ -160,7 +166,12 @@ export const CartPage = ({ setActiveTab, onOrderPlaced }) => {
                         )}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-xs sm:text-sm font-bold text-navy line-clamp-1">
+                        <span
+                          onClick={() => onSelectProduct && onSelectProduct(item.product_id || item.id)}
+                          role="button"
+                          tabIndex={0}
+                          className="text-xs sm:text-sm font-bold text-navy line-clamp-1 hover:text-emerald-700 cursor-pointer transition-colors"
+                        >
                           {item.name}
                         </span>
                         <span className="text-[11px] text-slate-500 mt-0.5">

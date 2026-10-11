@@ -1,12 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { FolderTree, Plus, Edit2, Trash2, X, AlertCircle, Package, Grid, Sparkles } from 'lucide-react';
+import {
+  FolderTree,
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  AlertCircle,
+  Package,
+  Grid,
+  Laptop,
+  Shirt,
+  Footprints,
+  BookOpen,
+  UtensilsCrossed,
+  Armchair,
+  Dumbbell,
+  Sparkles,
+  Briefcase,
+  ChevronRight
+} from 'lucide-react';
 import { getCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 
-import { filterLegitCategories } from '../utils/categoryFilter';
+const getCategoryIcon = (catName) => {
+  const lower = (catName || '').toLowerCase();
+  if (lower.includes('elec') || lower.includes('gadget') || lower.includes('tech') || lower.includes('hardware')) return Laptop;
+  if (lower.includes('footwear') || lower.includes('shoe') || lower.includes('sneaker')) return Footprints;
+  if (lower.includes('cloth') || lower.includes('fashion') || lower.includes('apparel') || lower.includes('wear')) return Shirt;
+  if (lower.includes('book') || lower.includes('stationery') || lower.includes('read') || lower.includes('literature')) return BookOpen;
+  if (lower.includes('kitchen') || lower.includes('home & kitchen') || lower.includes('cook')) return UtensilsCrossed;
+  if (lower.includes('furnit') || lower.includes('office') || lower.includes('desk') || lower.includes('chair')) return Armchair;
+  if (lower.includes('sport') || lower.includes('fit') || lower.includes('gym') || lower.includes('workout')) return Dumbbell;
+  if (lower.includes('beaut') || lower.includes('care') || lower.includes('skin') || lower.includes('cosmet')) return Sparkles;
+  if (lower.includes('bag') || lower.includes('travel') || lower.includes('luggage') || lower.includes('pack')) return Briefcase;
+  return Package;
+};
 
 export const CategoriesPage = ({ openAddModalSignal, onModalHandled, onSelectCategory }) => {
+  const { isAdmin } = useAuth();
   const { showSuccess, showError } = useToast();
 
   const [categories, setCategories] = useState([]);
@@ -36,12 +69,26 @@ export const CategoriesPage = ({ openAddModalSignal, onModalHandled, onSelectCat
     }
   }, [openAddModalSignal]);
 
+  // Modal Escape key handler
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && !formLoading) {
+        setIsModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, formLoading]);
+
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await getCategoriesApi();
-      setCategories(filterLegitCategories(res.data || []));
+      const rawCats = Array.isArray(res) ? res : (res.data || []);
+      const validCats = rawCats.filter((c) => Number(c.product_count) > 0);
+      setCategories(validCats);
     } catch (err) {
       setError(err.message || 'Failed to load categories');
     } finally {
@@ -110,43 +157,26 @@ export const CategoriesPage = ({ openAddModalSignal, onModalHandled, onSelectCat
     }
   };
 
-  const getCategoryEmoji = (catName) => {
-    const lower = (catName || '').toLowerCase();
-    if (lower.includes('elec') || lower.includes('gadget') || lower.includes('tech') || lower.includes('hardware')) return '💻';
-    if (lower.includes('footwear') || lower.includes('shoe') || lower.includes('sneaker')) return '👟';
-    if (lower.includes('cloth') || lower.includes('fashion') || lower.includes('apparel') || lower.includes('wear')) return '👕';
-    if (lower.includes('book') || lower.includes('stationery') || lower.includes('read') || lower.includes('paper')) return '📚';
-    if (lower.includes('kitchen') || lower.includes('home & kitchen') || lower.includes('cook')) return '🍳';
-    if (lower.includes('furnit') || lower.includes('office') || lower.includes('desk') || lower.includes('chair')) return '🪑';
-    if (lower.includes('sport') || lower.includes('fit') || lower.includes('gym') || lower.includes('workout')) return '⚽';
-    if (lower.includes('beaut') || lower.includes('care') || lower.includes('skin') || lower.includes('cosmet')) return '✨';
-    if (lower.includes('bag') || lower.includes('travel') || lower.includes('luggage') || lower.includes('pack')) return '🎒';
-    return '📦';
-  };
-
   return (
-    <div className="flex flex-col gap-6 max-w-[1600px] mx-auto w-full">
+    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mb-0.5">
-            <span>Store</span>
-            <span>/</span>
-            <span className="text-teal font-bold">Categories</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-navy tracking-tight">Product Categories</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Organize and manage catalog taxonomies, groups, and product counts.
+          <h1 className="text-xl sm:text-2xl font-bold text-navy tracking-tight">Browse Categories</h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Discover curated collections with real-time stock levels.
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreate}
-          className="px-4 py-2.5 bg-navy hover:bg-navy-dark text-white text-xs font-semibold rounded-xl transition-all shadow-xs flex items-center justify-center space-x-2 shrink-0 cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Category</span>
-        </button>
+        {isAdmin && (
+          <button
+            onClick={handleOpenCreate}
+            className="px-4 py-2 bg-navy hover:bg-navy-dark text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center justify-center space-x-2 shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Category</span>
+          </button>
+        )}
       </div>
 
       {/* Category Display Grid */}
@@ -165,73 +195,91 @@ export const CategoriesPage = ({ openAddModalSignal, onModalHandled, onSelectCat
           <FolderTree className="w-12 h-12 text-slate-400 mx-auto" />
           <div className="space-y-1">
             <p className="text-sm font-bold text-navy">No categories found</p>
-            <p className="text-xs text-slate-500">Create your first category to start organizing products.</p>
+            <p className="text-xs text-slate-500">Categories will appear here once configured.</p>
           </div>
-          <button
-            onClick={handleOpenCreate}
-            className="px-4 py-2 bg-navy hover:bg-navy-dark text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer"
-          >
-            Create Category
-          </button>
+          {isAdmin && (
+            <button
+              onClick={handleOpenCreate}
+              className="px-4 py-2 bg-navy hover:bg-navy-dark text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+            >
+              Create Category
+            </button>
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
           {categories.map((category) => {
-            const emoji = getCategoryEmoji(category.name);
+            const Icon = getCategoryIcon(category.name);
+            const count = category.product_count !== undefined ? Number(category.product_count) : 0;
+            const hasProducts = count > 0;
+
             return (
               <div
                 key={category.id}
-                className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between hover:border-teal/50 hover:shadow-xs transition-all duration-300 shadow-xs group"
+                className="bg-white border border-slate-200/90 rounded-2xl p-4 flex flex-col justify-between hover:border-teal/60 hover:shadow-sm transition-all duration-200 shadow-xs group"
               >
                 <div
                   onClick={() => onSelectCategory && onSelectCategory(category.id)}
-                  className="space-y-3 cursor-pointer group-hover:opacity-95"
+                  className="space-y-2.5 cursor-pointer"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-beige-light text-2xl flex items-center justify-center group-hover:scale-105 transition-transform">
-                      {emoji}
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 text-teal flex items-center justify-center group-hover:scale-105 group-hover:bg-teal/10 transition-all">
+                      <Icon className="w-5 h-5" />
                     </div>
-                    <span className="px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full font-semibold text-[11px]">
-                      {category.product_count !== undefined ? `${category.product_count} Products` : 'Category'}
+                    <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
+                      hasProducts
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                    }`}>
+                      {count} {count === 1 ? 'Product' : 'Products'}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-navy group-hover:text-teal transition-colors flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-navy group-hover:text-teal transition-colors flex items-center justify-between">
                       <span>{category.name}</span>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-teal transition-colors" />
                     </h3>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                      {category.description || 'No description provided for this category.'}
+                      {category.description || 'Explore products in this collection.'}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end space-x-2 pt-4 mt-4 border-t border-slate-100">
-                  <button
-                    onClick={() => handleOpenEdit(category)}
-                    className="p-2 bg-slate-100 hover:bg-slate-200 text-teal rounded-xl transition-colors cursor-pointer border border-slate-200"
-                    title="Edit Category"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setDeletingId(category.id)}
-                    className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-colors cursor-pointer border border-rose-200"
-                    title="Delete Category"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                {isAdmin && (
+                  <div className="flex items-center justify-end space-x-2 pt-3 mt-3 border-t border-slate-100">
+                    <button
+                      onClick={() => handleOpenEdit(category)}
+                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-teal rounded-lg transition-colors cursor-pointer border border-slate-200"
+                      title="Edit Category"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setDeletingId(category.id)}
+                      className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors cursor-pointer border border-rose-200"
+                      title="Delete Category"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
       )}
 
-      {/* Category Create/Edit Modal */}
+      {/* Category Create/Edit Modal (Admin Only) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-5 relative">
+        <div
+          onClick={() => { if (!formLoading) setIsModalOpen(false); }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fadeIn"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-5 relative"
+          >
             <button
               onClick={() => setIsModalOpen(false)}
               disabled={formLoading}
